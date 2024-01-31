@@ -1,0 +1,7 @@
+version: "3"
+services:
+  feynman:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: feynman:${version}

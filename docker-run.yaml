@@ -1,0 +1,58 @@
+version: "3"
+services:
+  boson: 
+    image: feynman:${version}
+    # container_name: boson${version}
+    env_file:
+      - .env.${env}
+    command: python server/BosonMqConsumer.py
+    volumes:
+      - ${logDir}:/opt/app/logs
+    deploy: 
+      mode: replicated
+      replicas: 2
+  quantumWalks:
+    image: feynman:${version}
+    # container_name: quantumWalks${version}
+    env_file:
+      - .env.${env}
+    command: python server/QuantumWalksConsumer.py
+    volumes: 
+      - ${logDir}:/opt/app/logs
+    deploy: 
+      mode: replicated
+      replicas: 1
+  quantumStwalks: 
+    image: feynman:${version}
+    # container_name: quantumStWalks${version}
+    env_file:
+      - .env.${env}
+    command: python server/QuantumStWalksConsumer.py
+    volumes: 
+      - ${logDir}:/opt/app/logs
+    deploy: 
+      mode: replicated
+      replicas: 1
+  customerWalks:
+    image: feynman:${version}
+    # container_name: customerWalks${version}
+    env_file:
+      - .env.${env}
+    command: python server/CustQuantumWalksConsumer.py
+    volumes: 
+      - ${logDir}:/opt/app/logs
+    deploy: 
+      mode: replicated
+      replicas: 1
+  multiPleQuantum:
+    image: feynman:${version}
+    # container_name: multiPleQuantum${version}
+    env_file:
+      - .env.${env}
+    command: python server/MultiParticleConsumer.py
+    volumes: 
+      - ${logDir}:/opt/app/logs
+    deploy: 
+      mode: replicated
+      replicas: 2
+    

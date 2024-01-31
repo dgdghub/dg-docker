@@ -1,0 +1,123 @@
+version: "3"
+services:
+  redis:
+    image: redis:6.2.6
+    container_name: redis
+    command: redis-server /etc/redis/redis.conf
+    ports:
+      - 6379:6379
+    volumes:
+        - /Users/samnie./program/docker/redis/data:/data
+        - /Users/samnie./program/docker/redis/conf/redis.conf:/etc/redis/redis.conf
+        - /Users/samnie./program/docker/redis/logs:/logs
+    networks:
+      - default
+    hostname: myredis
+ 
+  mysql:
+    image: mysql:8.0.27
+    container_name: mysql
+    ports:
+      - 3306:3306
+    volumes:
+      - /Users/samnie./program/docker/mysql/conf/my.cnf:/etc/mysql/my.cnf
+      - /Users/samnie./program/docker/mysql/data:/var/lib/mysql
+      - /Users/samnie./program/docker/mysql/logs:/logs
+    environment:
+      - MYSQL_ROOT_PASSWORD=Abc123456
+    networks:
+      - default
+    hostname: mymysql
+ 
+  mongodb:
+    image: mongo:4.4.11-rc1-focal
+    container_name: mongodb
+    ports:
+      - 27017:27017
+    # command: mongo --auth
+    volumes:
+      - /Users/samnie./program/docker/mongodb/data:/data/db
+      - /Users/samnie./program/docker/mongodb/logs:/var/log/mongodb
+      - /Users/samnie./program/docker/mongodb/conf/mongod.conf:/data/configdb/mongo.conf
+    networks:
+      - default
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: quantum
+      MONGO_INITDB_ROOT_PASSWORD: quantum2021
+    hostname: mymongodb
+      
+  # nacos:
+  #   image: nacos/nacos-server:v2.0.3
+  #   container_name: nacos
+  #   ports:
+  #     - 8848:8848
+  #   command: nacos/nacos-server
+  #   networks:
+  #     - default
+  #   depends_on:
+  #     - mysql
+  #   environment:
+  #     - JVM_XMS=256m
+  #     - JVM_XMX=256m
+  #     - MODE=standalone
+  #     - PREFER_HOST_MODE=hostname
+  #     - SPRING_DATASOURCE_PLATFORM=mysql
+  #     - MYSQL_SERVICE_HOST=mymysql
+  #     - MYSQL_SERVICE_PORT=3306
+  #     - MYSQL_SERVICE_DB_NAME=nacos
+  #     - MYSQL_SERVICE_USER=root
+  #     - MYSQL_SERVICE_PASSWORD=Abc123456
+  #   volumes:
+  #     - /Users/samnie./program/docker/nacos/logs:/home/nacos/logs
+  #     - /Users/samnie./program/docker/nacos/init.d/custom.properties:/home/nacos/init.d/custom.properties
+  #   hostname: mynacos
+    
+  rocket-server:
+    image: rocketmqinc/rocketmq
+    container_name: rmqnamesrv
+    ports:
+      - 9876:9876
+    command: sh mqnamesrv
+    networks:
+      - default
+    volumes:
+      - /Users/samnie./program/docker/rocketmq/namesrv/logs:/root/logs
+      - /Users/samnie./program/docker/rocketmq/namesrv/store:/root/store
+    environment:
+      - MAX_POSSIBLE_HEAP=100000000
+    # hostname: myrocket-server
+      
+  rocket-broker:
+    image: rocketmqinc/rocketmq
+    container_name: rmqbroker
+    ports:
+      - 10911:10911
+      - 10909:10909
+    command: sh mqbroker -c /opt/rocketmq-4.4.0/conf/broker.conf
+    volumes:
+      - /Users/samnie./program/docker/rocketmq/broker/logs:/root/logs
+      - /Users/samnie./program/docker/rocketmq/broker/store:/root/store
+      - /Users/samnie./program/docker/rocketmq/conf/broker.conf:/opt/rocketmq-4.4.0/conf/broker.conf
+    environment:
+      - NAMESRV_ADDR=192.168.1.53:9876
+      - MAX_POSSIBLE_HEAP=200000000
+    networks:
+      - default
+    # hostname: myrocket-broker
+        
+  rocket-ui:
+    image: pangliang/rocketmq-console-ng
+    container_name: rmqadmin
+    command: pangliang/rocketmq-console-ng
+    ports:
+      - 9999:8080
+    environment:
+      - JAVA_OPTS=-Drocketmq.namesrv.addr=192.168.1.53:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false
+    networks:
+      - default
+    hostname: myrocket-ui
+ 
+networks:
+  default:
+      driver: bridge
+ 
